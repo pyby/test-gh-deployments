@@ -42,12 +42,6 @@ jobs:
           # Remove "feature/" from the head branch
           BUILD_NAME=$(echo "$HEAD_BRANCH" | sed 's/feature\///g')
 
-          # Define environment names
-          IOS_NIGHTLY_ENVIRONMENT=$(echo "playsrg-ios-nightly+$BUILD_NAME" | jq -R -r @uri)
-          TVOS_NIGHTLY_ENVIRONMENT=$(echo "playsrg-tvos-nightly+$BUILD_NAME" | jq -R -r @uri)
-          IOS_BETA_ENVIRONMENT=$(echo "playsrg-ios-beta+$BUILD_NAME" | jq -R -r @uri)
-          TVOS_BETA_ENVIRONMENT=$(echo "playsrg-tvos-beta+$BUILD_NAME" | jq -R -r @uri)
-
           # Function to fetch log and environment URLs from status URL
           fetch_status_urls() {
             STATUS_URL=$1
@@ -61,9 +55,10 @@ jobs:
           # Function to set inactive state to the latest deployment
           set_inactive_latest_deployment() {
               local ENVIRONMENT=$1
+              local ENVIRONMENT_ENCODED=$(echo "$ENVIRONMENT" | jq -R -r @uri)
 
               # Get the latest active deployment
-              local DEPLOYMENT_DATA=$(curl -s -H "$AUTHORIZATION" "$DEPLOYMENTS_URL?environment=$ENVIRONMENT" | jq '.[0]')
+              local DEPLOYMENT_DATA=$(curl -s -H "$AUTHORIZATION" "$DEPLOYMENTS_URL?environment=$ENVIRONMENT_ENCODED" | jq '.[0]')
 
               if [ "$DEPLOYMENT_DATA" != "null" ]; then
                   local DEPLOYMENT_ID=$(echo "$DEPLOYMENT_DATA" | jq -r '.id')
@@ -91,7 +86,8 @@ jobs:
               fi
           }
 
-          set_inactive_latest_deployment "$IOS_NIGHTLY_ENVIRONMENT"
-          set_inactive_latest_deployment "$TVOS_NIGHTLY_ENVIRONMENT"
-          set_inactive_latest_deployment "$IOS_BETA_ENVIRONMENT"
-          set_inactive_latest_deployment "$TVOS_BETA_ENVIRONMENT"
+          # Set inactive state to the latest deployment of branch environments
+          set_inactive_latest_deployment "playsrg-ios-nightly+$BUILD_NAME"
+          set_inactive_latest_deployment "playsrg-tvos-nightly+$BUILD_NAME"
+          set_inactive_latest_deployment "playsrg-ios-beta+$BUILD_NAME"
+          set_inactive_latest_deployment "playsrg-tvos-beta+$BUILD_NAME"
