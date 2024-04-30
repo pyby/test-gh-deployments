@@ -2,4 +2,4 @@
 
 A test repository to try GiHub deployment feature for an other official public repository.
 
-Official documentation: https://docs.github.com/en/rest/deployments?apiVersion=2022-11-28
+GiHub documentation: https://docs.github.com/en/rest/deployments?apiVersion=2022-11-28
