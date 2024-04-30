@@ -58,7 +58,8 @@ jobs:
               local ENVIRONMENT_ENCODED=$(echo "$ENVIRONMENT" | jq -R -r @uri)
 
               # Get the latest active deployment
-              local DEPLOYMENT_DATA=$(curl -s -H "$AUTHORIZATION" "$DEPLOYMENTS_URL?environment=$ENVIRONMENT_ENCODED" | jq '.[0]')
+              local DEPLOYMENTS_FULL_URL="$DEPLOYMENTS_URL?environment=$ENVIRONMENT_ENCODED"
+              local DEPLOYMENT_DATA=$(curl -s -H "$AUTHORIZATION" "$DEPLOYMENTS_FULL_URL" | jq '.[0]')
 
               if [ "$DEPLOYMENT_DATA" != "null" ]; then
                   local DEPLOYMENT_ID=$(echo "$DEPLOYMENT_DATA" | jq -r '.id')
